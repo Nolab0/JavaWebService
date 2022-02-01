@@ -8,10 +8,10 @@ import lombok.With;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "game")
+@Table(name = "map")
 @AllArgsConstructor @NoArgsConstructor @With @ToString
 public class GameMapModel {
     @Id public int gameModelId;
-    public @Column(name = "map") String map;
+    public String map;
     public @OneToOne @PrimaryKeyJoinColumn GameModel gameModel;
 }

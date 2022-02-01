@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class GameService {
-   @ConfigProperty(name = "JWS_MAP_PATH") String map_path;
+   //@ConfigProperty(name = "JWS_MAP_PATH") String map_path;
 
     private PlayerEntity modelToEntity(PlayerModel playerModel) {
         return new PlayerEntity(playerModel.id, playerModel.name, playerModel.lives, playerModel.posX, playerModel.posY, playerModel.gameModel.id);
@@ -38,7 +38,8 @@ public class GameService {
 
     @Transactional
     public GameEntity addGame(final PlayerEntity firstPlayer) {
-        map_path = map_path.length() > 0 ? map_path : "src/test/resources/map1.rle";
+        //map_path = map_path.length() > 0 ? map_path : "src/test/resources/map1.rle";
+        String map_path = "src/test/resources/map1.rle";
         val mapModel = new GameMapModel()
                 .withMap(map_path);
         val gameModel = new GameModel()
