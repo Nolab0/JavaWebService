@@ -1,5 +1,6 @@
 package fr.epita.assistant.jws.data.model;
 
+import fr.epita.assistant.jws.domain.service.Utils;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -20,4 +21,6 @@ public class PlayerModel extends PanacheEntityBase{
     public @Column(name = "pos_x") int posX;
     public @Column(name = "pos_y") int posY;
     public @ManyToOne GameModel gameModel;
+    public int bombPositionX;
+    public int bombPositionY;
 }

@@ -1,7 +1,10 @@
 package fr.epita.assistant.jws.domain.service;
 
 import fr.epita.assistant.jws.data.model.GameModel;
+import fr.epita.assistant.jws.data.model.PlayerModel;
 import fr.epita.assistant.jws.domain.entity.GameEntity;
+import lombok.Value;
+import org.jboss.logging.annotations.Pos;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -102,4 +105,26 @@ public abstract class Utils {
         int index = y * 17 + x;
         return map.charAt(index) == 'G';
     }
+
+    public static String explodeBomb(String map, List<PlayerModel> players, int x, int y){
+        List<Utils.Position> positions = new ArrayList<>();
+        StringBuilder builder = new StringBuilder(map);
+        positions.add(new Utils.Position(x + 1, y));
+        positions.add(new Utils.Position(x - 1, y));
+        positions.add(new Utils.Position(x, y + 1));
+        positions.add(new Utils.Position(x, y - 1));
+        for (Utils.Position position : positions) {
+            int index = position.posY * 17 + position.posX;
+            if (builder.charAt(index) == 'W') {
+                builder.setCharAt(index, 'G');
+            }
+            for (PlayerModel player : players){
+                if (player.posX == position.posX && player.posY == position.posY)
+                    player.lives--;
+            }
+        }
+        builder.setCharAt(y * 17 + x, 'G');
+        return builder.toString();
+    }
+
 }

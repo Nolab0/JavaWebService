@@ -6,6 +6,7 @@ import fr.epita.assistant.jws.data.model.PlayerModel;
 import fr.epita.assistant.jws.domain.entity.GameEntity;
 import fr.epita.assistant.jws.domain.entity.GameState;
 import fr.epita.assistant.jws.domain.entity.PlayerEntity;
+import lombok.SneakyThrows;
 import lombok.val;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -18,8 +19,13 @@ import javax.ws.rs.BadRequestException;
 import java.io.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -30,6 +36,8 @@ public class GameService {
     @ConfigProperty(name="JWS_DELAY_BOMB") int delay_bomb;
     @ConfigProperty(name="JWS_DELAY_SHRINK") int delay_shrink;
     @ConfigProperty(name="JWS_DELAY_FREE") int delay_free;
+
+
 
     private PlayerEntity modelToEntity(PlayerModel playerModel) {
         return new PlayerEntity(playerModel.id, playerModel.lastBomb, playerModel.lastMovement, playerModel.name, playerModel.lives
@@ -50,6 +58,21 @@ public class GameService {
         GameModel gameModel = GameModel.<GameModel>findById(id);
         if (gameModel == null)
             return null;
+        return new GameEntity(gameModel.startTime, gameModel.state,gameModel.players.stream()
+                .map(this::modelToEntity)
+                .collect(Collectors.toList()), Utils.getMapList(gameModel.gameMapModel.map), gameModel.id);
+    }
+
+    @Transactional
+    public GameEntity updateMap(int id){
+        GameModel gameModel = GameModel.<GameModel>findById(id);
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        for (PlayerModel player : gameModel.players){
+            if (player.lastBomb != null && now.getTime() - player.lastBomb.getTime() >= (long) tick_duration * delay_bomb) {
+                gameModel.gameMapModel.map = Utils.explodeBomb(gameModel.gameMapModel.map, gameModel.players, player.bombPositionX, player.bombPositionY);
+                player.lastBomb = null;
+            }
+        }
         return new GameEntity(gameModel.startTime, gameModel.state,gameModel.players.stream()
                 .map(this::modelToEntity)
                 .collect(Collectors.toList()), Utils.getMapList(gameModel.gameMapModel.map), gameModel.id);
@@ -116,8 +139,14 @@ public class GameService {
             return null;
         if (playerModel.posX != position.posX || playerModel.posY != position.posY)
             return null;
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        if (playerModel.lastBomb != null && now.getTime() - playerModel.lastBomb.getTime() < (long) tick_duration * delay_bomb)
+            throw new BadRequestException("Can't pose bomb");
         gameModel.gameMapModel.map = Utils.putBombAt(gameModel.gameMapModel.map, position.posX, position.posY);
-        GameModel.persist(gameModel);
+        playerModel.bombPositionX = playerModel.posX;
+        playerModel.bombPositionY = playerModel.posY;
+        playerModel.lastBomb = now;
+
         return new GameEntity(gameModel.startTime, gameModel.state, gameModel.players
                 .stream()
                 .map(this::modelToEntity).collect(Collectors.toList()), Utils.getMapList(gameModel.gameMapModel.map), gameModel.id);
@@ -130,8 +159,8 @@ public class GameService {
         if (playerModel.lives == 0)
             throw new BadRequestException("Player already dead");
         Timestamp now = new Timestamp(System.currentTimeMillis());
-        if (playerModel.lastMovement != null && now.getTime() - playerModel.lastMovement.getTime() < tick_duration * delay_movement)
-            throw new BadRequestException("cant move");
+        if (playerModel.lastMovement != null && now.getTime() - playerModel.lastMovement.getTime() < (long) tick_duration * delay_movement)
+            throw new BadRequestException("Can't move");
         if (!Utils.isValidMove(gameModel.gameMapModel.map, position.posX, position.posY))
             throw new BadRequestException("Invalid move");
         playerModel.posX = position.posX;
