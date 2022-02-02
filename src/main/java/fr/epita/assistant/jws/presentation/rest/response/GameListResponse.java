@@ -38,5 +38,4 @@ public class GameListResponse {
         public int players;
         public String state;
     }
-
 }

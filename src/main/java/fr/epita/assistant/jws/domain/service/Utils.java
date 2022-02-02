@@ -90,4 +90,16 @@ public abstract class Utils {
         }
         return res;
     }
+
+    public static String putBombAt(String map, int x, int y){
+        StringBuilder builder = new StringBuilder(map);
+        int index = y * 17 + x;
+        builder.setCharAt(index, 'B');
+        return builder.toString();
+    }
+
+    public static boolean isValidMove(String map, int x, int y){
+        int index = y * 17 + x;
+        return map.charAt(index) == 'G';
+    }
 }

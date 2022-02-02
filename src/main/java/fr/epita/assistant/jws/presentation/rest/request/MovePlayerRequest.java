@@ -1,6 +1,5 @@
 package fr.epita.assistant.jws.presentation.rest.request;
 
-
 import fr.epita.assistant.jws.domain.entity.GameEntity;
 import fr.epita.assistant.jws.domain.service.GameService;
 import fr.epita.assistant.jws.domain.service.Utils;
@@ -14,15 +13,18 @@ import javax.ws.rs.core.MediaType;
 @Path("/games")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class PutBombRequest {
+public class MovePlayerRequest {
 
-    @Inject GameService gameService;
-    @POST @Path("/{gameId}/players/{playerId}/bomb")
-    public GameEntity putBomb(@PathParam("gameId") final int gameId,
-                              @PathParam("playerId") final int playerId,
-                              Utils.Position position)
+    @Inject
+    GameService gameService;
+    @POST
+    @Path("/{gameId}/players/{playerId}/move")
+    public GameEntity movePlayer(@PathParam("gameId") final int gameId,
+                                 @PathParam("playerId") final int playerId,
+                                 Utils.Position position)
     {
         GameEntity entity = gameService.getGame(gameId);
-        return gameService.putBomb(gameId, playerId, position);
+        return gameService.movePlayer(entity.id, playerId, position);
     }
+
 }
