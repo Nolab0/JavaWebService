@@ -2,7 +2,7 @@ POST localhost:8082/games
 Content-Type: application/json
 
 {
-  "name": "Josein"
+  "name": "Thibault"
 }
 
 ###
@@ -11,4 +11,17 @@ GET localhost:8082/games
 
 ###
 
-GET localhost:8082/games/3
+GET localhost:8082/games/4
+
+###
+
+POST localhost:8082/games/2
+Content-Type: application/json
+
+{
+  "name": "Jean"
+}
+
+###
+
+PATCH localhost:8082/games/1/start

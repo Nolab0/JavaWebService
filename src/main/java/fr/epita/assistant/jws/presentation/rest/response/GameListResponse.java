@@ -24,14 +24,15 @@ public class GameListResponse {
     @Inject GameService gameService;
 
     @GET
-    public Set<GameSummary> findAllGames() {
-        return gameService.getGames().stream().map(gameEntity -> new GameSummary(gameEntity.id, gameEntity
+    public Set<GameSummaryDTO> findAllGames() {
+        // System.out.println("Get Game list");
+        return gameService.getGames().stream().map(gameEntity -> new GameSummaryDTO(gameEntity.id, gameEntity
                 .players.size(), gameEntity.state))
                 .collect(Collectors.toSet());
     }
 
     @With @Value
-    private class GameSummary
+    private class GameSummaryDTO
     {
         public int id;
         public int players;

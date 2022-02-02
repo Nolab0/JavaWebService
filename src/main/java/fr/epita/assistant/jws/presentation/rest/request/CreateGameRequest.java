@@ -6,10 +6,7 @@ import fr.epita.assistant.jws.domain.service.GameService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.Set;
 
@@ -22,6 +19,9 @@ public class CreateGameRequest {
 
     @POST
     public GameEntity createGame(final PlayerEntity firstPlayer) {
+        if (firstPlayer == null || firstPlayer.name == null)
+            throw new BadRequestException("Bad request (request or name is null)");
+        // System.out.println("Create Game with Player " + firstPlayer.name);
         return gameService.addGame(firstPlayer);
     }
 

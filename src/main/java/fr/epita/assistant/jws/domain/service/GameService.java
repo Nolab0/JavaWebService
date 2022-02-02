@@ -30,10 +30,19 @@ public class GameService {
     public Set<GameEntity> getGames() {
         return GameModel.<GameModel>findAll()
                 .stream()
-                .map(gameModel -> new GameEntity(gameModel.id, gameModel.startTime, gameModel.state,gameModel.players.stream()
+                .map(gameModel -> new GameEntity(gameModel.startTime, gameModel.state,gameModel.players.stream()
                         .map(this::modelToEntity)
-                        .collect(Collectors.toList())))
+                        .collect(Collectors.toList()), Utils.getMapList(gameModel.gameMapModel.map), gameModel.id))
                 .collect(Collectors.toSet());
+    }
+
+    public GameEntity getGame(int id){
+        GameModel gameModel = GameModel.<GameModel>findById(id);
+        if (gameModel == null)
+            return null;
+        return new GameEntity(gameModel.startTime, gameModel.state,gameModel.players.stream()
+                .map(this::modelToEntity)
+                .collect(Collectors.toList()), Utils.getMapList(gameModel.gameMapModel.map), gameModel.id);
     }
 
     @Transactional
@@ -41,23 +50,52 @@ public class GameService {
         //map_path = map_path.length() > 0 ? map_path : "src/test/resources/map1.rle";
         String map_path = "src/test/resources/map1.rle";
         val mapModel = new GameMapModel()
-                .withMap(map_path);
+                .withMap(Utils.decodeRle(map_path));
         val gameModel = new GameModel()
                 .withStartTime(new Timestamp(System.currentTimeMillis()))
                 .withState(GameState.STARTING.toString())
                 .withPlayers(new ArrayList<>())
                 .withGameMapModel(mapModel);
+        Utils.Position position = Utils.getPos(gameModel);
         val playerModel = new PlayerModel()
                 .withName(firstPlayer.name)
-                .withPosX(1)
-                .withPosY(1)
+                .withPosX(position.posX)
+                .withPosY(position.posY)
                 .withLives(3)
                 .withGameModel(gameModel);
         gameModel.players.add(playerModel);
         PlayerModel.persist(playerModel);
         GameModel.persist(gameModel);
-        return new GameEntity(gameModel.id, gameModel.startTime, gameModel.state, gameModel.players
+        return new GameEntity(gameModel.startTime, gameModel.state, gameModel.players
                 .stream()
-                .map(this::modelToEntity).collect(Collectors.toList()));
+                .map(this::modelToEntity).collect(Collectors.toList()), Utils.getMapList(gameModel.gameMapModel.map), gameModel.id);
+    }
+
+    @Transactional
+    public GameEntity joinGame(int gameId, final PlayerEntity newPlayer){
+        val gameModel = GameModel.<GameModel>findById(gameId);
+        Utils.Position position = Utils.getPos(gameModel);
+        val playerModel = new PlayerModel()
+                .withName(newPlayer.name)
+                .withPosX(position.posX)
+                .withPosY(position.posY)
+                .withLives(3)
+                .withGameModel(gameModel);
+        gameModel.players.add(playerModel);
+        GameModel.persist(gameModel);
+        PlayerModel.persist(playerModel);
+        return new GameEntity(gameModel.startTime, gameModel.state, gameModel.players
+                .stream()
+                .map(this::modelToEntity).collect(Collectors.toList()), Utils.getMapList(gameModel.gameMapModel.map), gameModel.id);
+    }
+
+    @Transactional
+    public GameEntity startGame(int gameId){
+        val gameModel = GameModel.<GameModel>findById(gameId);
+        gameModel.state = GameState.RUNNING.toString();
+        GameModel.persist(gameModel);
+        return new GameEntity(gameModel.startTime, gameModel.state, gameModel.players
+                .stream()
+                .map(this::modelToEntity).collect(Collectors.toList()), Utils.getMapList(gameModel.gameMapModel.map), gameModel.id);
     }
 }

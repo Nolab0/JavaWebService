@@ -9,8 +9,9 @@ import java.util.List;
 
 @Value @With
 public class GameEntity {
-    public int id;
     public Timestamp startTime;
     public String state;
     public List<PlayerEntity> players;
+    public List<String> map;
+    public int id;
 }
