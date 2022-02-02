@@ -21,10 +21,11 @@ public class GameDetailResponse {
     public GameEntity getGameDetails(@PathParam("gameId") final int gameId){
         // System.out.println("Get details of game " + gameId);
         GameEntity entity = gameService.getGame(gameId);
-        entity = gameService.updateMap(gameId);
         if (entity == null)
             throw new NotFoundException("Cannot found game with this id");
-        else
+        else {
+            entity = gameService.updateMap(gameId);
             return entity;
+        }
     }
 }

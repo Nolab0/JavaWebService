@@ -6,26 +6,17 @@ import fr.epita.assistant.jws.data.model.PlayerModel;
 import fr.epita.assistant.jws.domain.entity.GameEntity;
 import fr.epita.assistant.jws.domain.entity.GameState;
 import fr.epita.assistant.jws.domain.entity.PlayerEntity;
-import lombok.SneakyThrows;
 import lombok.val;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 
 import javax.enterprise.context.ApplicationScoped;
 
-import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.BadRequestException;
-import java.io.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -40,7 +31,7 @@ public class GameService {
 
 
     private PlayerEntity modelToEntity(PlayerModel playerModel) {
-        return new PlayerEntity(playerModel.id, playerModel.lastBomb, playerModel.lastMovement, playerModel.name, playerModel.lives
+        return new PlayerEntity(playerModel.id, playerModel.name, playerModel.lives
                 ,playerModel.posX, playerModel.posY, playerModel.gameModel.id);
     }
 

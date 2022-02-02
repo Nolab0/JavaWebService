@@ -24,6 +24,10 @@ public class MovePlayerRequest {
                                  Utils.Position position)
     {
         GameEntity entity = gameService.getGame(gameId);
+        if (entity == null)
+            throw new NotFoundException("Game with this Id does not exists");
+        else if (position == null)
+            throw new BadRequestException("Null passed in position");
         return gameService.movePlayer(entity.id, playerId, position);
     }
 

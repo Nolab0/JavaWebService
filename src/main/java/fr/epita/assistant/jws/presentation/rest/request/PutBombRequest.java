@@ -23,6 +23,8 @@ public class PutBombRequest {
                               Utils.Position position)
     {
         GameEntity entity = gameService.getGame(gameId);
+        if (entity == null)
+            throw new NotFoundException("Game with this Id does not exists");
         return gameService.putBomb(gameId, playerId, position);
     }
 }
