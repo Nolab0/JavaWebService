@@ -2,6 +2,7 @@ package fr.epita.assistant.jws.domain.service;
 
 import fr.epita.assistant.jws.data.model.GameModel;
 import fr.epita.assistant.jws.data.model.PlayerModel;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.io.*;
 import java.util.ArrayList;

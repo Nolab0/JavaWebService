@@ -24,7 +24,7 @@ public class GameDetailResponse {
         if (entity == null)
             throw new NotFoundException("Cannot found game with this id");
         else {
-            entity = gameService.updateGame(gameId);
+            GameService.gameId = entity.id;
             return entity;
         }
     }

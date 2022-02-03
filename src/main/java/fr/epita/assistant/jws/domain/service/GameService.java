@@ -6,14 +6,18 @@ import fr.epita.assistant.jws.data.model.PlayerModel;
 import fr.epita.assistant.jws.domain.entity.GameEntity;
 import fr.epita.assistant.jws.domain.entity.GameState;
 import fr.epita.assistant.jws.domain.entity.PlayerEntity;
+
+
 import lombok.val;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.springframework.scheduling.annotation.Scheduled;
 
 
 import javax.enterprise.context.ApplicationScoped;
 
 import javax.transaction.Transactional;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.WebApplicationException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Set;
@@ -25,10 +29,29 @@ public class GameService {
     @ConfigProperty(name="JWS_TICK_DURATION") int tick_duration;
     @ConfigProperty(name="JWS_DELAY_MOVEMENT") int delay_movement;
     @ConfigProperty(name="JWS_DELAY_BOMB") int delay_bomb;
-    @ConfigProperty(name="JWS_DELAY_SHRINK") int delay_shrink;
-    @ConfigProperty(name="JWS_DELAY_FREE") int delay_free;
+    /*@ConfigProperty(name="JWS_DELAY_SHRINK") int delay_shrink;
+    @ConfigProperty(name="JWS_DELAY_FREE") int delay_free;*/
 
+    public static Integer gameId = null;
 
+    @Transactional
+    @Scheduled(fixedRate = 10)
+    public void updateLoop(){
+        if (gameId != null) {
+            GameModel gameModel = GameModel.<GameModel>findById(gameId);
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            // Update state of the game
+            for (PlayerModel player : gameModel.players) {
+                if (player.lastBomb != null && now.getTime() - player.lastBomb.getTime() >= (long) tick_duration * delay_bomb) {
+                    gameModel.gameMapModel.map = Utils.explodeBomb(gameModel.gameMapModel.map, gameModel.players, player.bombPositionX, player.bombPositionY);
+                    player.lastBomb = null;
+                }
+            }
+            if (gameModel.state.equals("RUNNING") && Utils.playerAlives(gameModel.players) <= 1)
+                gameModel.state = GameState.FINISHED.toString();
+            GameModel.persist(gameModel);
+        }
+    }
 
     private PlayerEntity modelToEntity(PlayerModel playerModel) {
         return new PlayerEntity(playerModel.id, playerModel.name, playerModel.lives
@@ -55,7 +78,7 @@ public class GameService {
     }
 
     @Transactional
-    public GameEntity updateGame(int id){
+    public void updateGame(int id){
         GameModel gameModel = GameModel.<GameModel>findById(id);
         Timestamp now = new Timestamp(System.currentTimeMillis());
         // Update state of the game
@@ -65,11 +88,13 @@ public class GameService {
                 player.lastBomb = null;
             }
         }
-        if (gameModel.state.equals("RUNNING") && Utils.playerAlives(gameModel.players) == 1)
+        if (gameModel.state.equals("RUNNING") && Utils.playerAlives(gameModel.players) <= 1)
             gameModel.state = GameState.FINISHED.toString();
-        return new GameEntity(gameModel.startTime, gameModel.state,gameModel.players.stream()
+        /*return new GameEntity(gameModel.startTime, gameModel.state,gameModel.players.stream()
                 .map(this::modelToEntity)
                 .collect(Collectors.toList()), Utils.getMapList(gameModel.gameMapModel.map), gameModel.id);
+        */
+        GameModel.persist(gameModel);
     }
 
     @Transactional
@@ -118,6 +143,8 @@ public class GameService {
     @Transactional
     public GameEntity startGame(int gameId){
         val gameModel = GameModel.<GameModel>findById(gameId);
+        if (!gameModel.state.equals("STARTING"))
+            throw new BadRequestException("Game can't be started");
         gameModel.state = GameState.RUNNING.toString();
         GameModel.persist(gameModel);
         return new GameEntity(gameModel.startTime, gameModel.state, gameModel.players
@@ -156,7 +183,7 @@ public class GameService {
         if (playerModel.lastMovement != null && now.getTime() - playerModel.lastMovement.getTime() < (long) tick_duration * delay_movement)
             throw new BadRequestException("Can't move");
         if (!Utils.isValidMove(gameModel.gameMapModel.map, position.posX, position.posY))
-            throw new BadRequestException("Invalid move");
+            throw new WebApplicationException(429);
         playerModel.posX = position.posX;
         playerModel.posY = position.posY;
         playerModel.lastMovement = now;
