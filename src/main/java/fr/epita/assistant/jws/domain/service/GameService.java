@@ -55,15 +55,18 @@ public class GameService {
     }
 
     @Transactional
-    public GameEntity updateMap(int id){
+    public GameEntity updateGame(int id){
         GameModel gameModel = GameModel.<GameModel>findById(id);
         Timestamp now = new Timestamp(System.currentTimeMillis());
+        // Update state of the game
         for (PlayerModel player : gameModel.players){
             if (player.lastBomb != null && now.getTime() - player.lastBomb.getTime() >= (long) tick_duration * delay_bomb) {
                 gameModel.gameMapModel.map = Utils.explodeBomb(gameModel.gameMapModel.map, gameModel.players, player.bombPositionX, player.bombPositionY);
                 player.lastBomb = null;
             }
         }
+        if (gameModel.state.equals("RUNNING") && Utils.playerAlives(gameModel.players) == 1)
+            gameModel.state = GameState.FINISHED.toString();
         return new GameEntity(gameModel.startTime, gameModel.state,gameModel.players.stream()
                 .map(this::modelToEntity)
                 .collect(Collectors.toList()), Utils.getMapList(gameModel.gameMapModel.map), gameModel.id);
@@ -130,6 +133,7 @@ public class GameService {
             return null;
         if (playerModel.posX != position.posX || playerModel.posY != position.posY)
             return null;
+
         Timestamp now = new Timestamp(System.currentTimeMillis());
         if (playerModel.lastBomb != null && now.getTime() - playerModel.lastBomb.getTime() < (long) tick_duration * delay_bomb)
             throw new BadRequestException("Can't pose bomb");
@@ -137,7 +141,6 @@ public class GameService {
         playerModel.bombPositionX = playerModel.posX;
         playerModel.bombPositionY = playerModel.posY;
         playerModel.lastBomb = now;
-
         return new GameEntity(gameModel.startTime, gameModel.state, gameModel.players
                 .stream()
                 .map(this::modelToEntity).collect(Collectors.toList()), Utils.getMapList(gameModel.gameMapModel.map), gameModel.id);

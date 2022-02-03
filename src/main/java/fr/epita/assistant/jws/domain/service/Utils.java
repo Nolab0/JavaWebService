@@ -124,4 +124,13 @@ public abstract class Utils {
         return builder.toString();
     }
 
+    public static int playerAlives(List<PlayerModel> players){
+        int res = 0;
+        for (PlayerModel player : players){
+            if (player.lives > 0)
+                res++;
+        }
+        return res;
+    }
+
 }
