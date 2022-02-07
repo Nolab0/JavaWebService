@@ -117,8 +117,11 @@ public abstract class Utils {
                 builder.setCharAt(index, 'G');
             }
             for (PlayerModel player : players){
-                if (player.posX == position.posX && player.posY == position.posY)
+                if (player.posX == position.posX && player.posY == position.posY) {
+                    player.posX = player.initialX;
+                    player.posY = player.initialY;
                     player.lives--;
+                }
             }
         }
         builder.setCharAt(y * 17 + x, 'G');

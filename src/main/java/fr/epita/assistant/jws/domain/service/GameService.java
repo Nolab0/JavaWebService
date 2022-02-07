@@ -112,6 +112,8 @@ public class GameService {
                 .withName(firstPlayer.name)
                 .withPosX(position.posX)
                 .withPosY(position.posY)
+                .withInitialX(position.posX)
+                .withInitialY(position.posY)
                 .withLives(3)
                 .withGameModel(gameModel);
         gameModel.players.add(playerModel);
@@ -130,6 +132,8 @@ public class GameService {
                 .withName(newPlayer.name)
                 .withPosX(position.posX)
                 .withPosY(position.posY)
+                .withInitialX(position.posX)
+                .withInitialY(position.posY)
                 .withLives(3)
                 .withGameModel(gameModel);
         gameModel.players.add(playerModel);

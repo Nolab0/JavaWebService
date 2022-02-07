@@ -23,4 +23,6 @@ public class PlayerModel extends PanacheEntityBase{
     public @ManyToOne GameModel gameModel;
     public int bombPositionX;
     public int bombPositionY;
+    public int initialX;
+    public int initialY;
 }
