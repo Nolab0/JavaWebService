@@ -12,8 +12,8 @@ public abstract class Utils {
 
     public static class Position
     {
-        int posX;
-        int posY;
+        public int posX;
+        public int posY;
 
         public Position(int posX, int posY) {
             this.posX = posX;

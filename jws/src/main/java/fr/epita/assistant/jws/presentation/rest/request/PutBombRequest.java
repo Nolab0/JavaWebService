@@ -2,6 +2,8 @@ package fr.epita.assistant.jws.presentation.rest.request;
 
 
 import fr.epita.assistant.jws.domain.entity.GameEntity;
+import fr.epita.assistant.jws.domain.entity.GameState;
+import fr.epita.assistant.jws.domain.entity.PlayerEntity;
 import fr.epita.assistant.jws.domain.service.GameService;
 import fr.epita.assistant.jws.domain.service.Utils;
 
@@ -23,8 +25,15 @@ public class PutBombRequest {
                               Utils.Position position)
     {
         GameEntity entity = gameService.getGame(gameId);
+        PlayerEntity player = gameService.getPlayer(gameId, playerId);
         if (entity == null)
             throw new NotFoundException("Game with this Id does not exists");
+        if (player == null)
+            throw new NotFoundException("Player with this Id does not exists");
+        if (!entity.state.equals(GameState.STARTING.toString()))
+            throw new BadRequestException("Game finished");
+        if (position.posX != player.posX || position.posY != player.posY)
+            throw new BadRequestException("Wrong bomb position");
         return gameService.putBomb(gameId, playerId, position);
     }
 }

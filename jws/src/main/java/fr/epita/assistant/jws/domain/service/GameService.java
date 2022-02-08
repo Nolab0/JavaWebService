@@ -17,6 +17,7 @@ import javax.enterprise.context.ApplicationScoped;
 
 import javax.transaction.Transactional;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -75,6 +76,17 @@ public class GameService {
         return new GameEntity(gameModel.startTime, gameModel.state,gameModel.players.stream()
                 .map(this::modelToEntity)
                 .collect(Collectors.toList()), Utils.getMapList(gameModel.gameMapModel.map), gameModel.id);
+    }
+
+    public PlayerEntity getPlayer(int gameId, int playerId) {
+        GameModel gameModel = GameModel.<GameModel>findById(gameId);
+        if (gameModel == null)
+            return null;
+        for (PlayerModel player : gameModel.players){
+            if (player.id == playerId)
+                return modelToEntity(player);
+        }
+        return null;
     }
 
     @Transactional
@@ -148,8 +160,11 @@ public class GameService {
     public GameEntity startGame(int gameId){
         val gameModel = GameModel.<GameModel>findById(gameId);
         if (!gameModel.state.equals("STARTING"))
-            throw new BadRequestException("Game can't be started");
-        gameModel.state = GameState.RUNNING.toString();
+            throw new NotFoundException("Game can't be started");
+        if (gameModel.players.size() == 1)
+            gameModel.state = GameState.FINISHED.toString();
+        else
+            gameModel.state = GameState.RUNNING.toString();
         GameModel.persist(gameModel);
         return new GameEntity(gameModel.startTime, gameModel.state, gameModel.players
                 .stream()
