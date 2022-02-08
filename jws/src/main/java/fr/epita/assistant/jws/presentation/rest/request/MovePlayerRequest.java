@@ -31,12 +31,14 @@ public class MovePlayerRequest {
             throw new NotFoundException("Game with this Id does not exists");
         if (position == null || position.posX == null || position.posY == null)
             throw new BadRequestException("Null passed in position");
-        if (player == null)
+        if (player == null || player.name == null)
             throw new NotFoundException("Player with this Id does not exists");
         if (!entity.state.equals(GameState.RUNNING.toString()))
-            throw new BadRequestException("Game not runnnin");
+            throw new BadRequestException("Game not running");
         if (!Utils.validMove(player.posX, player.posY, position))
             throw new BadRequestException("Invalid move");
+        if (player.lives <= 0)
+            throw new BadRequestException("Player dead");
         return gameService.movePlayer(entity.id, playerId, position);
     }
 

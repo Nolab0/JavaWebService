@@ -56,7 +56,7 @@ public class GameService {
 
     private PlayerEntity modelToEntity(PlayerModel playerModel) {
         return new PlayerEntity(playerModel.id, playerModel.name, playerModel.lives
-                ,playerModel.posX, playerModel.posY, playerModel.gameModel.id);
+                ,playerModel.posX, playerModel.posY);
     }
 
     @Transactional
@@ -202,7 +202,7 @@ public class GameService {
         if (playerModel.lastMovement != null && now.getTime() - playerModel.lastMovement.getTime() < (long) tick_duration * delay_movement)
             throw new BadRequestException("Can't move");
         if (!Utils.isValidMove(gameModel.gameMapModel.map, position.posX, position.posY))
-            throw new WebApplicationException(429);
+            throw new WebApplicationException(400);
         playerModel.posX = position.posX;
         playerModel.posY = position.posY;
         playerModel.lastMovement = now;

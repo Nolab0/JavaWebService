@@ -12,5 +12,4 @@ public class PlayerEntity {
     public int lives;
     public int posX;
     public int posY;
-    public int gameId;
 }
