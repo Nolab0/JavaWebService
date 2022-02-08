@@ -72,9 +72,9 @@ public abstract class Utils {
             case 1:
                 return new Position(15,1);
             case 2:
-                return new Position(1,13);
-            case 3:
                 return new Position(15,13);
+            case 3:
+                return new Position(1,13);
         }
         return new Position(1,1);
     }

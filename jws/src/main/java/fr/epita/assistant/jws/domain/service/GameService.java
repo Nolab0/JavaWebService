@@ -200,7 +200,7 @@ public class GameService {
             throw new BadRequestException("Player already dead");
         Timestamp now = new Timestamp(System.currentTimeMillis());
         if (playerModel.lastMovement != null && now.getTime() - playerModel.lastMovement.getTime() < (long) tick_duration * delay_movement)
-            throw new BadRequestException("Can't move");
+            throw new WebApplicationException(429);
         if (!Utils.isValidMove(gameModel.gameMapModel.map, position.posX, position.posY))
             throw new WebApplicationException(400);
         playerModel.posX = position.posX;
