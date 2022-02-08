@@ -20,8 +20,10 @@ public class JoinGameRequest {
     @Inject GameService gameService;
 
     @POST @Path("/{gameId}")
-    public GameEntity joinGame(@PathParam("gameId") final int gameId, final PlayerEntity newPlayer){
+    public GameEntity joinGame(@PathParam("gameId") final Integer gameId, final PlayerEntity newPlayer){
         GameEntity entity = gameService.getGame(gameId);
+        if (gameId == null)
+            throw new BadRequestException("gameId is null");
         if (entity == null)
             throw new NotFoundException("Game with this ID does not exist");
         if (newPlayer == null)
