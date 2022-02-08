@@ -175,18 +175,17 @@ public class GameService {
     public GameEntity putBomb(int gameId, int playerId, Utils.Position position){
         val gameModel = GameModel.<GameModel>findById(gameId);
         val playerModel = PlayerModel.<PlayerModel>findById(playerId);
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        if (playerModel.lastBomb != null && now.getTime() - playerModel.lastBomb.getTime() < (long) tick_duration * delay_bomb)
+            throw new WebApplicationException(429);
         if (playerModel == null)
             return null;
         if (playerModel.posX != position.posX || playerModel.posY != position.posY)
             return null;
-
-        Timestamp now = new Timestamp(System.currentTimeMillis());
-        if (playerModel.lastBomb != null && now.getTime() - playerModel.lastBomb.getTime() < (long) tick_duration * delay_bomb)
-            throw new WebApplicationException(429);
         gameModel.gameMapModel.map = Utils.putBombAt(gameModel.gameMapModel.map, position.posX, position.posY);
         playerModel.bombPositionX = playerModel.posX;
         playerModel.bombPositionY = playerModel.posY;
-        playerModel.lastBomb = now;
+        playerModel.lastBomb = new Timestamp(System.currentTimeMillis());
         return new GameEntity(gameModel.startTime, gameModel.state, gameModel.players
                 .stream()
                 .map(this::modelToEntity).collect(Collectors.toList()), Utils.getMapList(gameModel.gameMapModel.map), gameModel.id);
