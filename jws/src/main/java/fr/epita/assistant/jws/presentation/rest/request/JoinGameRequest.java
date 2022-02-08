@@ -1,6 +1,7 @@
 package fr.epita.assistant.jws.presentation.rest.request;
 
 import fr.epita.assistant.jws.domain.entity.GameEntity;
+import fr.epita.assistant.jws.domain.entity.GameState;
 import fr.epita.assistant.jws.domain.entity.PlayerEntity;
 import fr.epita.assistant.jws.domain.service.GameService;
 
@@ -23,11 +24,12 @@ public class JoinGameRequest {
         GameEntity entity = gameService.getGame(gameId);
         if (entity == null)
             throw new NotFoundException("Game with this ID does not exist");
-        else if (entity.players.size() == 4
-                || !entity.state.equals("STARTING")
-                || newPlayer == null
-                || newPlayer.name == null)
-            throw new NotFoundException("Cannot join this game");
+        if (newPlayer == null)
+            throw new BadRequestException("join null");
+        if (!entity.state.equals(GameState.STARTING.toString()))
+            throw new BadRequestException("Game invalid");
+        if (entity.players.size() >= 4)
+            throw new BadRequestException("Too much player");
         else
             return gameService.joinGame(gameId, newPlayer);
     }
