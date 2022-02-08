@@ -182,7 +182,7 @@ public class GameService {
 
         Timestamp now = new Timestamp(System.currentTimeMillis());
         if (playerModel.lastBomb != null && now.getTime() - playerModel.lastBomb.getTime() < (long) tick_duration * delay_bomb)
-            throw new WebApplicationException(429)
+            throw new WebApplicationException(429);
         gameModel.gameMapModel.map = Utils.putBombAt(gameModel.gameMapModel.map, position.posX, position.posY);
         playerModel.bombPositionX = playerModel.posX;
         playerModel.bombPositionY = playerModel.posY;
