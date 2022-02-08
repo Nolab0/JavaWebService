@@ -29,7 +29,7 @@ public class PutBombRequest {
         if (entity == null)
             throw new NotFoundException("Game with this Id does not exists");
         if (player == null)
-            throw new BadRequestException("Player with this Id does not exists");
+            throw new NotFoundException("Player with this Id does not exists");
         if (!entity.state.equals(GameState.RUNNING.toString()))
             throw new BadRequestException("Game finished");
         if (position.posX != player.posX || position.posY != player.posY)
