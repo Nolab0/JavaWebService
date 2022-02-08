@@ -27,7 +27,7 @@ public class JoinGameRequest {
                 || !entity.state.equals("STARTING")
                 || newPlayer == null
                 || newPlayer.name == null)
-            throw new BadRequestException("Cannot join this game");
+            throw new NotFoundException("Cannot join this game");
         else
             return gameService.joinGame(gameId, newPlayer);
     }
