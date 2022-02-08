@@ -22,7 +22,7 @@ public class JoinGameRequest {
     public GameEntity joinGame(@PathParam("gameId") final int gameId, final PlayerEntity newPlayer){
         GameEntity entity = gameService.getGame(gameId);
         if (entity == null)
-            throw new NotFoundException("Game with this ID does not exist");
+            throw new BadRequestException("Game with this ID does not exist");
         else if (entity.players.size() == 4
                 || !entity.state.equals("STARTING")
                 || newPlayer == null
