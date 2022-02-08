@@ -12,8 +12,8 @@ public abstract class Utils {
 
     public static class Position
     {
-        public int posX;
-        public int posY;
+        public Integer posX;
+        public Integer posY;
 
         public Position(int posX, int posY) {
             this.posX = posX;
@@ -135,6 +135,14 @@ public abstract class Utils {
                 res++;
         }
         return res;
+    }
+
+    public static Boolean validMove(int posX, int posY, Position newPos){
+        if (newPos.posX > posX + 1 || newPos.posX < posX - 1)
+            return false;
+        else if (newPos.posY > posY + 1 || newPos.posY < posY - 1)
+            return false;
+        return true;
     }
 
 }

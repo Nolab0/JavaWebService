@@ -24,7 +24,7 @@ public class JoinGameRequest {
         if (entity == null)
             throw new NotFoundException("Game with this ID does not exist");
         else if (entity.players.size() == 4
-                || entity.state.equals("RUNNING")
+                || !entity.state.equals("STARTING")
                 || newPlayer == null
                 || newPlayer.name == null)
             throw new BadRequestException("Cannot join this game");
