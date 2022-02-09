@@ -26,7 +26,7 @@ public class JoinGameRequest {
             throw new BadRequestException("gameId is null");
         if (entity == null)
             throw new NotFoundException("Game with this ID does not exist");
-        if (newPlayer == null)
+        if (newPlayer == null || newPlayer.name == null)
             throw new BadRequestException("join null");
         if (!entity.state.equals(GameState.STARTING.toString()))
             throw new BadRequestException("Game invalid");
