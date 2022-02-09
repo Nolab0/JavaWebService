@@ -121,6 +121,8 @@ public abstract class Utils {
                     player.posX = player.initialX;
                     player.posY = player.initialY;
                     player.lives--;
+                    if (player.lives <= 0)
+                        players.remove(player);
                 }
             }
         }
