@@ -111,6 +111,10 @@ public abstract class Utils {
         positions.add(new Utils.Position(x - 1, y));
         positions.add(new Utils.Position(x, y + 1));
         positions.add(new Utils.Position(x, y - 1));
+        positions.add(new Utils.Position(x - 1, y - 1));
+        positions.add(new Utils.Position(x + 1, y + 1));
+        positions.add(new Utils.Position(x - 1, y + 1));
+        positions.add(new Utils.Position(x + 1, y - 1));
         for (Utils.Position position : positions) {
             int index = position.posY * 17 + position.posX;
             if (builder.charAt(index) == 'W') {
