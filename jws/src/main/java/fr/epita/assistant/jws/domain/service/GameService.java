@@ -22,6 +22,8 @@ import javax.ws.rs.WebApplicationException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -36,7 +38,7 @@ public class GameService {
     public static Integer gameId = null;
 
     @Transactional
-    @Scheduled(fixedRate = 10)
+    //@Scheduled(fixedRate = 1)
     public void updateLoop(){
         if (gameId != null) {
             GameModel gameModel = GameModel.<GameModel>findById(gameId);
@@ -186,6 +188,9 @@ public class GameService {
         playerModel.bombPositionX = playerModel.posX;
         playerModel.bombPositionY = playerModel.posY;
         playerModel.lastBomb = new Timestamp(System.currentTimeMillis());
+        CompletableFuture.runAsync(() -> {
+            gameModel.gameMapModel.map = Utils.explodeBomb(gameModel.gameMapModel.map, gameModel.players, playerModel.bombPositionX, playerModel.bombPositionY);
+        }, CompletableFuture.delayedExecutor((long)delay_bomb * tick_duration, TimeUnit.MILLISECONDS ));
         return new GameEntity(gameModel.startTime, gameModel.state, gameModel.players
                 .stream()
                 .map(this::modelToEntity).collect(Collectors.toList()), Utils.getMapList(gameModel.gameMapModel.map), gameModel.id);
@@ -207,6 +212,7 @@ public class GameService {
         playerModel.lastMovement = now;
         PlayerModel.persist(playerModel);
         GameModel.persist(gameModel);
+
         return new GameEntity(gameModel.startTime, gameModel.state, gameModel.players
                 .stream()
                 .map(this::modelToEntity).collect(Collectors.toList()), Utils.getMapList(gameModel.gameMapModel.map), gameModel.id);
